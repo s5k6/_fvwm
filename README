@@ -1,0 +1,111 @@
+
+FVWM configuration
+==================
+
+This is an extremely sleek and efficient configuration of FVWM.  You
+may not like it, I've adapted it to my needs over a timespan that may
+very well span two decades.
+
+  * There are no icons, there's no taskbar.
+
+  * Focus follows the mouse.
+
+  * Hit the Menu key to start programs.
+
+  * Hold down the key with a window on it to interact with the
+    window manager.
+
+  * There's only one desktop, it is 3×3 pages (aka. viewports,
+    screens) large.
+
+  * Windows are stacked, and this stack is organised in three layers:
+    normal, top, bottom.
+
+
+Mouse interaction
+-----------------
+
+On the background:
+
+  * *left* — Brings up the menu to launch programs.
+
+  * *right* — Brings up window list.
+
+  * *middle* — Brings up the menu with window actions (close, move, …).
+
+On a window: Hold down the window-key with the first button press to
+do this:
+
+  * *left* — Raises or drags the window.
+
+  * *right* — Lowers or resizes the window.
+
+  * *middle* — Brings up a menu with window actions (close, move, …).
+
+
+Keyboard interaction
+--------------------
+
+Hold down the window-key with the first key press to use any of the
+following bindings.  Use further modifiers as listed:
+
+  * *Tab* — Brings up the window list.  Contains all windows.
+    Releasing the window key will jump to that window, and raise it.
+    Hit Window-Tab again to swap between two windows in
+    least-recently-focused order.  If a new window is mapped, it is
+    either focused when under the pointer, or it will be the next
+    window in that order.  Without releasing the window key,
+    repeatedly typing Tab moves forwards, Shift-Tab moves backwards in
+    that list.
+
+  * `d` — Ask the program to close the window.  With Shift, destroys
+    the window, might kill the program.
+
+  * `i` — Iconify the window.  Icons are never shown, so this basically
+    hides the window.  Use the windows list (Window-Tab or right click
+    on the background) to find it again.  Iconified windows appear at
+    the bottom.
+
+  * `m` — Move the window.
+
+  * `r` — Resize the window.
+
+  * `s` — Toggle the window's stickyness.  Sticky windows stick to the
+    screen instead of the desktop, i.e., appear fixed when moving the
+    viewport to other pages.
+
+  * The *cursor* keys — Move the screen (i.e., your viewport) to the
+    page of the desktop which is adjacent in that direction.  Default
+    is a 3×3 pages desktop.  With *Shift*, move a window there, but do
+    not change the viewport.  With *Ctrl*, go there and take a window
+    with you.  With *Meta* (aka. *Alt*), move a window to the edge of
+    the screen in that direction.
+
+  * *PgUp*/*PgDn*, aka. *Prior*/*Next* — Raise/lower this window within
+     its layer.  With *Shift*, move the window to the top/bottom
+     layer.
+
+  * *Return* — Put a window in the normal layer, at the top.
+
+  * `x`, `y`, and `z` — Maximize the window in x, y, or both
+    directions.  With Shift, set to 50% in that direction.  This is
+    not implemented nicely.
+
+
+Config files
+------------
+
+The file `config` contains the main look and feel described here.  It
+will read the files `menu` and `styles`.  The former should
+contain the menu structure you desire to launch programs, and also
+hotkeys to launch programs.  The latter should contain styles required
+for individual programs.  The idea is that `config` should be somewhat
+stable across different machines, while the other two may differ
+depending on what's available there.
+
+
+Used scripts
+------------
+
+The basic `config` uses only very few executables: `notify-send`,
+`xterm`, `nano`, and `i3lock`.

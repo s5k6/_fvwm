@@ -1,0 +1,8 @@
+# -*- mode: conf -*-
+
+Style xmessage Sticky, StaysOnTop
+Style xosview Sticky, StaysOnTop
+Style fpm2 Sticky, StaysOnTop
+Style radio* Sticky, StaysOnTop
+Style drop StaysOnTop
+Style Conky StaysOnTop

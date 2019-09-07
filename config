@@ -1,0 +1,309 @@
+# -*- mode: conf -*-
+
+# First, specify everything that may be overwritten by local
+# definitions.  Then read them.  Then overwrite with core look and
+# feel.
+
+
+# === Default definitions ===
+
+destroyfunc InitFunction
+addtofunc InitFunction I exec xsetroot -solid '#142F38'
+
+# a terminal
+destroyfunc terminal
+addtofunc terminal I exec xterm -e $*
+
+# an editor
+destroyfunc edit
+addtofunc edit I terminal nano $*
+
+# how to lock the screen
+destroyfunc lockscreen
+addtofunc lockscreen I exec i3lock -c 1A1A1A
+
+# minimalist default menu
+destroymenu workspace
+addtomenu workspace
++ "Terminal" terminal $[SHELL]
++ "&Firefox" exec firefox
++ "&Windowmanager" popup windowmanager
+
+# help
+key F1 A 4 terminal less ~/.fvwm/README
+
+
+# === Read local definitions ===
+
+read menu
+read styles
+
+
+# === Core look and feel ===
+
+destroymenu windowmanager
+addtomenu windowmanager
++ "&Help" terminal less ~/.fvwm/README
++ "&Config" popup windowmanager/config
++ "&Pager" FvwmPager MyPager *
++ "All MoveToScreen" All MoveToScreen
++ "All Iconify off" All Iconify off
++ "allow FvwmCommand" FvwmCommandS # see FvwmCommand(1)
++ "&Lock" lockscreen
++ "&Quit" popup windowmanager/quit
+
+destroymenu windowmanager/config
+addtomenu windowmanager/config
++ "Menu" edit ~/.fvwm/menu
++ "Styles" edit ~/.fvwm/styles
++ "" nop
++ "Core" edit ~/.fvwm/config
+
+destroymenu windowmanager/quit
+addtomenu windowmanager/quit
++ "&No, don't" nop
++ "&Yes, logout" quit
++ "&Restart only" restart
++ "terminal" restart xterm
+
+
+# === menus concerned with window management ===
+
+destroymenu window
+addtomenu window
++ "iconify" iconify
++ "move" move
++ "resize" resize
++ "stick" stick
++ "delete" delete
++ "kill" popup window/reallykill
++ "layer" popup window/layer
+
+destroymenu window/reallykill
+addtomenu window/reallykill
++ "Really kill this?" nop
++ "yes" destroy
+
+destroymenu window/layer
+addtomenu window/layer
++ "top" layer 0 2
++ "raise" raise
++ "put" layer 0 4
++ "lower" lower
++ "bottom" layer 0 6
+
+
+# === functions used in window management ===
+
+destroyfunc moveOrRaise
+addtofunc moveOrRaise
++ C raise
++ M move
+
+destroyfunc resizeOrLower
+addtofunc resizeOrLower
++ C lower
++ M resize
+
+destroyfunc gotomovetopage
+addtofunc gotomovetopage
++ I movetopage $0 $1
++ I gotopage $0 $1
+
+
+# === key and mouse bindings ===
+
+# Key <key> <context> <mod> <command...>
+# Mouse <button> <context> <mod> <command...>
+
+key tab A M -
+key F1 r N nop # hide builtin menu
+
+key menu A N popup workspace
+
+key tab M S4 MenuMoveCursor -1
+key tab A 4 MyWindowList
+
+key d WFS 4 delete
+key d WFS S4 popup window/reallykill
+key i WFS 4 iconify
+key next WFS 4 lower
+key next WFS S4 Layer 0 2
+key m WFS 4 move
+key return WFS 4 layer 0 4
+key r WFS 4 resize
+key s WFS 4 stick
+key prior WFS 4 raise
+key prior WFS S4 layer 0 6
+
+key z WFS 4 maximize frame 100 100
+key x WFS 4 resizeMove frame 100 keep 0 keep
+key x WFS S4 resize frame 50 keep
+key y WFS 4 resizeMove frame keep 100 keep 0
+key y WFS S4 resize frame keep 50
+
+key left WFS M4 move 0 w0 warp
+key right WFS M4 move -0 w0 warp
+key up WFS M4 move w0 0 warp
+key down WFS M4 move w0 -0 warp
+
+key right A 4 gotopage 1p 0p
+key left A 4 gotopage -1p 0p
+key up A 4 gotopage 0p -1p
+key down A 4 gotopage 0p 1p
+key right A S4 movetopage 1p 0p
+key left A S4 movetopage -1p 0p
+key up A S4 movetopage 0p -1p
+key down A S4 movetopage 0p 1p
+
+key right A C4 gotomovetopage 1p 0p
+key left A C4 gotomovetopage -1p 0p
+key up A C4 gotomovetopage 0p -1p
+key down A C4 gotomovetopage 0p 1p
+
+
+mouse 1 A 4 moveOrRaise
+mouse 2 A 4 popup window
+mouse 3 A 4 resizeOrLower
+mouse 1 FS N moveOrRaise
+mouse 2 FS N popup window
+mouse 3 FS N resizeOrLower
+
+mouse 1 r N popup workspace
+mouse 2 r N popup window
+mouse 3 r N MyWindowList
+
+
+
+# === the window list ===
+
+destroyfunc MyWindowList
+addtofunc MyWindowList
++ I WindowList CurrentAtEnd, IconifiedAtEnd, NoCurrentDeskTitle, \
+               SelectOnRelease Super_L
+
+destroyfunc WindowListFunc
+addtofunc WindowListFunc
++ I Iconify off
++ I FlipFocus
++ I Raise
++ I WarpToWindow 50 50
+
+
+# If the new window is under the mouse, it gains focus.  Otherwise the
+# "current" window, i.e., the one focused before the new window
+# appeared, retains focus, and the new window will be the next one in
+# the WindowList.  If there was no focused window, the pointer is
+# moved to the new window.
+
+DestroyFunc NewWindowFocusStacker
+AddToFunc NewWindowFocusStacker
+#+ I Echo new window $[w.id] $[w.name]
++ I Current (Focused) NewWindowFocusStackerShim $[w.id]
++ I Current (Focused) Break
+#+ I Echo current window not focused
++ I WindowId $[w.id] WarpToWindow 50 50
+
+DestroyFunc NewWindowFocusStackerShim
+AddToFunc NewWindowFocusStackerShim
+#+ I Echo current is $[w.id] $[w.name]
++ I WindowId $0 FlipFocus
++ I WindowId $[w.id] FlipFocus
+
+DestroyModuleConfig FvwmEventCfg: *
+*FvwmEventCfg: Cmd Function
+*FvwmEventCfg: add_window NewWindowFocusStacker
+Module FvwmEvent FvwmEventCfg
+
+
+# === Styles ===
+
+# 0 = Default colors
+# 1 = Inactive windows
+# 2 = Active windows
+# 3 = Inactive menu entry and menu background
+# 4 = Active menu entry
+# 5 = greyed out menu entry (only bg used)
+# 6 = module foreground and background
+# 7 = hilight colors
+
+Colorset 0 fg pink, bg pink, hi yellow, sh purple
+Colorset 1 bg #4F4D73
+Colorset 2 bg #FFCC00
+
+BorderStyle Active Colorset 2 -- Flat
+BorderStyle Inactive Colorset 1 -- Flat
+
+DefaultFont "xft:DejaVu Sans:size=11"
+
+Style * NoTitle, NoIcon, HandleWidth 1, HilightColorset 2
+
+
+# menus
+
+Colorset 3 fg black, bg #7AA6EE, hi #4F76B6, sh #4F76B6
+Colorset 4 fg white, bg #6A95DC
+
+MenuStyle * \
+    ItemFormat "%15.10l %.5>", \
+    MenuColorset 3, ActiveColorset 4, \
+    HilightBack, Hilight3DOff, \
+    PopupOffset 5, BorderWidth 0, \
+    SeparatorsLong, \
+    !AutomaticHotkeys, \
+    MouseWheel ScrollsMenuBackwards, \
+    TrianglesUseFore, TrianglesSolid, \
+    VerticalItemSpacing 10 10, VerticalTitleSpacing 10 10
+
+
+# the pager
+
+Style MyPager Sticky, StaysOnTop, WindowListSkip
+
+*MyPager: Font none # show no labels
+*MyPager: Balloons
+*MyPager: BalloonFont "xft:DejaVu Sans:size=10"
+*MyPager: BalloonFore #000000
+*MyPager: BalloonBack #7AA6EE
+*MyPager: UseSkipList
+
+
+
+# === behaviour ===
+
+DesktopSize 3x3
+
+EdgeThickness 0
+EdgeScroll 0 0
+EdgeResistance 50
+
+DefaultLayers 2 4 6
+OpaqueMoveSize unlimited
+
+Style * EdgeMoveResistance 50
+Style * SnapAttraction 10 SameType ScreenAll
+Style * FPEnterToFocus, FPLeaveToUnfocus, FPSortWindowlistByFocus
+Style * MouseFocus
+Style * MinOverlapPlacement
+
+
+# Stop windows from stealing focus.  There are further means
+# available, this being the least harsh one.  See
+# http://fvwmforums.org/wiki/Tips/FocusStealing/
+
+DestroyFunc EWMHActivateWindowFunc
+AddToFunc EWMHActivateWindowFunc
+#+ I exec notify-send FVWM EWMHActivateWindowFunc
++ I nop
+
+
+# Don't give focus to windows that wanna be "urgent", but instead
+# display a message via notification deamon, xmessage, or stdout, or
+# do nothing.
+
+DestroyFunc UrgencyFunc
+AddToFunc UrgencyFunc
++ I exec notify-send 'Urgent: $[w.name]'
+#+ I exec xmessage '$[w.name]'
+#+ I echo 'Urgent: $[w.name]'
+#+ I Nop

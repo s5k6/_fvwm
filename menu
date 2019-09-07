@@ -1,0 +1,12 @@
+# -*- mode: conf -*-
+
+# If you don't like the background
+#destroyfunc InitFunction
+
+
+# `workspace` is the name of the root menu, defined in `./config`
+
+#destroymenu workspace
+#addtomenu workspace
+#+ "Terminal" terminal $[SHELL]
+#+ "&Windowmanager" popup windowmanager
